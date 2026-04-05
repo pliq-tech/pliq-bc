@@ -2,18 +2,86 @@
 pragma solidity ^0.8.28;
 
 library PliqTypes {
-    enum VerificationLevel { None, Device, Orb, Passport }
-    enum ListingStatus { Active, Paused, Rented, Removed }
-    enum ApplicationStatus { Pending, Accepted, Rejected, Withdrawn }
-    enum AgreementStatus { Created, DepositPaid, Active, MoveInComplete, MoveOutInitiated, MoveOutComplete, Terminated, Disputed }
-    enum StakeType { Listing, Visit, Rent }
-    enum StakeStatus { Active, Released, Slashed, PartiallySlashed }
-    enum ActionType { RentPaidOnTime, RentPaidLate, PositiveReview, NegativeReview, DisputeWon, DisputeLost, StakeSlashed, SuccessfulMoveOut }
-    enum PaymentFrequency { Monthly, Biweekly, Weekly }
-    enum DisputeStatus { Filed, EvidenceCollection, Voting, Resolved, Appealed }
-    enum VoteChoice { None, ForInitiator, ForRespondent }
+    enum VerificationLevel {
+        None,
+        Device,
+        Orb,
+        Passport
+    }
 
-    struct UserInfo {
+    enum ListingStatus {
+        Active,
+        Paused,
+        Rented,
+        Removed
+    }
+
+    enum ApplicationStatus {
+        Pending,
+        Accepted,
+        Rejected,
+        Withdrawn
+    }
+
+    enum AgreementStatus {
+        Created,
+        DepositPaid,
+        Active,
+        MoveInComplete,
+        MoveOutInitiated,
+        MoveOutComplete,
+        Terminated,
+        Disputed
+    }
+
+    enum StakeType {
+        Listing,
+        Visit,
+        Rent
+    }
+
+    enum StakeStatus {
+        Active,
+        Released,
+        Slashed,
+        PartiallySlashed
+    }
+
+    enum ActionType {
+        RentPaidOnTime,
+        RentPaidLate,
+        PositiveReview,
+        NegativeReview,
+        DisputeWon,
+        DisputeLost,
+        StakeSlashed,
+        SuccessfulMoveOut,
+        ListingVerified,
+        VisitCompleted
+    }
+
+    enum DisputeStatus {
+        Filed,
+        EvidenceCollection,
+        Voting,
+        Resolved,
+        Appealed
+    }
+
+    enum PaymentStatus {
+        Completed,
+        Failed,
+        Pending
+    }
+
+    enum BridgeStatus {
+        Initiated,
+        Attested,
+        Completed,
+        Failed
+    }
+
+    struct User {
         address userAddress;
         uint256 nullifierHash;
         VerificationLevel verificationLevel;
@@ -21,7 +89,7 @@ library PliqTypes {
         bool isActive;
     }
 
-    struct ListingInfo {
+    struct Listing {
         address owner;
         bytes32 listingHash;
         uint128 deposit;
@@ -31,7 +99,7 @@ library PliqTypes {
         uint64 createdAt;
     }
 
-    struct ApplicationInfo {
+    struct Application {
         address applicant;
         uint256 listingId;
         ApplicationStatus status;
@@ -48,7 +116,6 @@ library PliqTypes {
         uint128 deposit;
         uint128 monthlyRent;
         AgreementStatus status;
-        address paymentToken;
         bytes32 checkInReportHash;
         bytes32 checkOutReportHash;
         bool landlordConfirmedMoveIn;
@@ -56,12 +123,10 @@ library PliqTypes {
         uint64 createdAt;
     }
 
-    struct StakeInfo {
+    struct Stake {
         address staker;
         StakeType stakeType;
         uint128 amount;
-        uint128 originalAmount;
-        address token;
         uint256 referenceId;
         StakeStatus status;
         uint64 createdAt;
@@ -87,10 +152,23 @@ library PliqTypes {
         uint256 totalVotesAgainst;
     }
 
+    struct Evidence {
+        address submitter;
+        bytes32 evidenceHash;
+        string evidenceURI;
+        uint64 submittedAt;
+    }
+
+    struct Payment {
+        uint256 agreementId;
+        uint128 amount;
+        address token;
+        PaymentStatus status;
+        uint64 timestamp;
+    }
+
     struct RecurringSchedule {
         uint256 agreementId;
-        address payer;
-        address recipient;
         uint128 amount;
         address token;
         uint32 intervalDays;
