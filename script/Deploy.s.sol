@@ -19,34 +19,62 @@ contract DeployScript is Script {
         uint256 deployerKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerKey);
 
-        // 1. PliqRegistry
+        // 1. PliqRegistry (standalone, only needs World ID router)
         PliqRegistry registry = new PliqRegistry(worldIdRouter, actionId);
         console.log("PliqRegistry:", address(registry));
 
-        // 2. RentalAgreement
-        RentalAgreement agreement = new RentalAgreement();
-        console.log("RentalAgreement:", address(agreement));
-
-        // 3. StakingManager
-        StakingManager staking = new StakingManager(treasury);
+        // 2. StakingManager (needs registry + treasury)
+        StakingManager staking = new StakingManager(address(registry), treasury);
         console.log("StakingManager:", address(staking));
 
-        // 4. ReputationAccumulator
-        ReputationAccumulator reputation = new ReputationAccumulator();
+        // 3. ReputationAccumulator (needs registry)
+        ReputationAccumulator reputation = new ReputationAccumulator(address(registry));
         console.log("ReputationAccumulator:", address(reputation));
 
-        // 5. PaymentRouter
+        // 4. PaymentRouter (needs fee recipient = treasury)
         PaymentRouter router = new PaymentRouter(treasury);
         console.log("PaymentRouter:", address(router));
 
-        // 6. DisputeResolver
-        DisputeResolver dispute = new DisputeResolver();
+        // 5. RentalAgreement (needs registry, payment router, staking manager)
+        RentalAgreement agreement = new RentalAgreement(
+            address(registry),
+            address(router),
+            address(staking)
+        );
+        console.log("RentalAgreement:", address(agreement));
+
+        // 6. DisputeResolver (needs rental agreement, staking manager, reputation accumulator)
+        DisputeResolver dispute = new DisputeResolver(
+            address(agreement),
+            address(staking),
+            address(reputation)
+        );
         console.log("DisputeResolver:", address(dispute));
 
-        // Configure: add USDC as supported token
-        router.setSupportedToken(usdcToken, true);
+        // Post-deploy: Grant roles
+        bytes32 DISPUTE_RESOLVER_ROLE = keccak256("DISPUTE_RESOLVER_ROLE");
+        // ORACLE_ROLE and KEEPER_ROLE can be granted post-deploy to specific addresses
+
+        staking.grantRole(DISPUTE_RESOLVER_ROLE, address(dispute));
+        console.log("Granted DISPUTE_RESOLVER_ROLE to DisputeResolver in StakingManager");
+
+        agreement.grantRole(keccak256("DISPUTE_RESOLVER_ROLE"), address(dispute));
+        console.log("Granted DISPUTE_RESOLVER_ROLE to DisputeResolver in RentalAgreement");
+
+        // Configure supported tokens
+        router.addSupportedToken(usdcToken);
         console.log("USDC added to PaymentRouter allowlist");
 
+        // Set minimum stakes
+        staking.setMinimumStake(PliqTypes.StakeType.Listing, 50e6);
+        staking.setMinimumStake(PliqTypes.StakeType.Visit, 10e6);
+        staking.setMinimumStake(PliqTypes.StakeType.Rent, 50e6);
+        console.log("Minimum stakes configured");
+
         vm.stopBroadcast();
+
+        // Log deployment summary
+        console.log("--- Deployment Complete ---");
+        console.log("Network: Base Sepolia / World Chain");
     }
 }
