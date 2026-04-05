@@ -1,34 +1,22 @@
-# dependencies (bun install)
-node_modules
+# Foundry
+out/
+cache/
 
-# output
-out
-dist
-*.tgz
+# Dependencies
+node_modules/
 
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+# Environment
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env.*
+!.env.example
 
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
+# Coverage
+coverage/
+lcov.info
 
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
+# OS
 .DS_Store
+
+# IDE
+.idea
+.vscode
