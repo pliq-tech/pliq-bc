@@ -20,3 +20,43 @@ lcov.info
 # IDE
 .idea
 .vscode
+
+# ==============================
+# ======   GITIGNORE   =========
+# ==============================
+
+/samples
+samples/*
+
+.DS_Store
+
+/.idea
+.idea/*
+
+/.vscode
+.vscode/*
+
+
+# ==============================
+# ======   GITIGNORE   =========
+# ==============================
+
+
+# Git identity configuration (contains email addresses)
+.git-identities.conf
+
+# Ignore all .env files
+.env*
+# But don't ignore the templates
+!.env.example
+!.env.template
+!template.env
+!.env.local.example
+!.env.production.example
+
+# Runtime data (uploaded files)
+/storage
+
+# ==============================
+# ======   GITIGNORE   =========
+# ==============================
